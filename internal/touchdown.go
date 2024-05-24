@@ -47,5 +47,5 @@ func StartTouchdown() {
 }
 
 func GetPos(n int) int {
-	return count[n+1]
+	return count[n]
 }
