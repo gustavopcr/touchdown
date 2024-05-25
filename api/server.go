@@ -19,10 +19,12 @@ func handleVerify(w http.ResponseWriter, r *http.Request) {
 		}
 		arr, err := s.ParseScore()
 		if err != nil {
-			panic("error reading from request body")
+			panic("error parsing from request body")
 		}
 
 		res := types.NewCombination(internal.GetPos(arr[0]) * internal.GetPos(arr[1]))
+
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(&res)
 	} else {
 		fmt.Fprintf(w, "HTTP METHOD NOT SUPPORTED")
