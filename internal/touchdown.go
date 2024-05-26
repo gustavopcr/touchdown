@@ -1,5 +1,10 @@
 package internal
 
+import (
+	"fmt"
+	"strings"
+)
+
 var count = make([]int, 20)
 var points = [...]int{3, 6, 7, 8}
 
@@ -48,4 +53,16 @@ func StartTouchdown() {
 
 func GetPos(n int) int {
 	return count[n]
+}
+
+func ParseScore(s string) ([]int, error) {
+	input := strings.TrimSpace(s)
+	input = strings.ToLower(input)
+	var n1, n2 int
+	_, err := fmt.Sscanf(input, "%dx%d", &n1, &n2)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing input: %w", err)
+	}
+
+	return []int{n1, n2}, nil
 }

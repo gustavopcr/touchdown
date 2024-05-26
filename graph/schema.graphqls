@@ -1,0 +1,19 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Score{
+  value: String!
+}
+
+type Combination{
+  combinations: Int!
+}
+
+type Query{
+  scores: [Score!]!
+}
+
+type Mutation {
+  verify(score: String!): Combination!
+}
