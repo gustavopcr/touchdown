@@ -10,8 +10,8 @@ type Combination{
   combinations: Int!
 }
 
-type Query{
-  scores: [Score!]!
+type Query {
+  combinations: [Int!]!
 }
 
 type Mutation {

@@ -56,7 +56,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Scores func(childComplexity int) int
+		Combinations func(childComplexity int) int
 	}
 
 	Score struct {
@@ -68,7 +68,7 @@ type MutationResolver interface {
 	Verify(ctx context.Context, score string) (*model.Combination, error)
 }
 type QueryResolver interface {
-	Scores(ctx context.Context) ([]*model.Score, error)
+	Combinations(ctx context.Context) ([]int, error)
 }
 
 type executableSchema struct {
@@ -109,12 +109,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Verify(childComplexity, args["score"].(string)), true
 
-	case "Query.scores":
-		if e.complexity.Query.Scores == nil {
+	case "Query.combinations":
+		if e.complexity.Query.Combinations == nil {
 			break
 		}
 
-		return e.complexity.Query.Scores(childComplexity), true
+		return e.complexity.Query.Combinations(childComplexity), true
 
 	case "Score.value":
 		if e.complexity.Score.Value == nil {
@@ -417,8 +417,8 @@ func (ec *executionContext) fieldContext_Mutation_verify(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_scores(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_scores(ctx, field)
+func (ec *executionContext) _Query_combinations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_combinations(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -431,7 +431,7 @@ func (ec *executionContext) _Query_scores(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Scores(rctx)
+		return ec.resolvers.Query().Combinations(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -443,23 +443,19 @@ func (ec *executionContext) _Query_scores(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Score)
+	res := resTmp.([]int)
 	fc.Result = res
-	return ec.marshalNScore2ᚕᚖgithubᚗcomᚋgustavopcrᚋtouchdownᚋgraphᚋmodelᚐScoreᚄ(ctx, field.Selections, res)
+	return ec.marshalNInt2ᚕintᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_scores(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_combinations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "value":
-				return ec.fieldContext_Score_value(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Score", field.Name)
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2526,7 +2522,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "scores":
+		case "combinations":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -2535,7 +2531,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_scores(ctx, field)
+				res = ec._Query_combinations(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2988,40 +2984,28 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNScore2ᚕᚖgithubᚗcomᚋgustavopcrᚋtouchdownᚋgraphᚋmodelᚐScoreᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Score) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
+func (ec *executionContext) unmarshalNInt2ᚕintᚄ(ctx context.Context, v interface{}) ([]int, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
 	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
+	var err error
+	res := make([]int, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNInt2int(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
 		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNScore2ᚖgithubᚗcomᚋgustavopcrᚋtouchdownᚋgraphᚋmodelᚐScore(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
+	}
+	return res, nil
+}
 
+func (ec *executionContext) marshalNInt2ᚕintᚄ(ctx context.Context, sel ast.SelectionSet, v []int) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNInt2int(ctx, sel, v[i])
 	}
-	wg.Wait()
 
 	for _, e := range ret {
 		if e == graphql.Null {
@@ -3030,16 +3014,6 @@ func (ec *executionContext) marshalNScore2ᚕᚖgithubᚗcomᚋgustavopcrᚋtouc
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNScore2ᚖgithubᚗcomᚋgustavopcrᚋtouchdownᚋgraphᚋmodelᚐScore(ctx context.Context, sel ast.SelectionSet, v *model.Score) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Score(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

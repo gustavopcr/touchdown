@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gustavopcr/touchdown/graph/model"
 	"github.com/gustavopcr/touchdown/internal"
@@ -22,9 +21,9 @@ func (r *mutationResolver) Verify(ctx context.Context, score string) (*model.Com
 	return &model.Combination{Combinations: value}, nil
 }
 
-// Scores is the resolver for the scores field.
-func (r *queryResolver) Scores(ctx context.Context) ([]*model.Score, error) {
-	panic(fmt.Errorf("not implemented: Scores - scores"))
+// Combinations is the resolver for the combinations field.
+func (r *queryResolver) Combinations(ctx context.Context) ([]int, error) {
+	return internal.GetAll(), nil
 }
 
 // Mutation returns MutationResolver implementation.

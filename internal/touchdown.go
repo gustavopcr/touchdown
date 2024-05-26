@@ -55,6 +55,9 @@ func GetPos(n int) int {
 	return count[n]
 }
 
+func GetAll() []int {
+	return count
+}
 func ParseScore(s string) ([]int, error) {
 	input := strings.TrimSpace(s)
 	input = strings.ToLower(input)
