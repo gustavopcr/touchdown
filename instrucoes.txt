@@ -1,11 +1,15 @@
 Para executar o aplicativo:
+    executar script_docker.bat/script_docker.sh
+    
+    ou
+    
     docker build -t studiosol-app .   
     docker run -p 8080:8080 studiosol-app
-    
 
 Rotas
     REST:
         http://localhost:8080/verify
+        
         Exemplo de input:    
             {
                 "score": "3x8"
@@ -13,12 +17,13 @@ Rotas
 
     GRAPHQL:
         http://localhost:8080/query
+        
         Exemplo de input:
-        mutation Verify {
-            verify(score: "15x15") {
-                combinations
+            mutation Verify {
+                verify(score: "15x15") {
+                    combinations
+                }
             }
-        }
 
 
 
