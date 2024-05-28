@@ -1,0 +1,27 @@
+Para executar o aplicativo:
+    docker build -t studiosol-app .   
+    docker run -p 8080:8080 studiosol-app
+    
+
+Rotas
+    REST:
+        http://localhost:8080/verify
+        Exemplo de input:    
+            {
+                "score": "3x8"
+            }
+
+    GRAPHQL:
+        http://localhost:8080/query
+        Exemplo de input:
+        mutation Verify {
+            verify(score: "15x15") {
+                combinations
+            }
+        }
+
+
+
+Para executar testes:
+    go test ./...
+
