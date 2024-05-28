@@ -14,11 +14,13 @@ func HandleVerify(w http.ResponseWriter, r *http.Request) {
 		var s types.Score
 		err := json.NewDecoder(r.Body).Decode(&s)
 		if err != nil {
-			panic("error reading from request body")
+			http.Error(w, "error reading from request body", http.StatusBadRequest)
+			return
 		}
 		arr, err := internal.ParseScore(s.Score)
 		if err != nil {
-			panic("error parsing from request body")
+			http.Error(w, "error parsing from request body", http.StatusBadRequest)
+			return
 		}
 		res := types.NewCombination(internal.GetPos(arr[0]) * internal.GetPos(arr[1]))
 
